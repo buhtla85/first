@@ -1,12 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Hello } from "./components/Hello";
+import { TextComponent } from "./components/hello";
 import { Bye } from "./components/bye";
 
 ReactDOM.render(
     <div>
-        <Hello compiler="TypeScript" framework="React" />
+        <TextComponent quote="Random quote" author="Random Author" />
         <Bye compiler="C++" framework= "Angular" />
     </div>,
     document.getElementById("example")
