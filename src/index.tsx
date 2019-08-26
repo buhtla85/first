@@ -7,7 +7,7 @@ import { Bye } from "./components/bye";
 ReactDOM.render(
     <div>
         <TextComponent />
-        <Bye compiler="C++" framework= "Angular" />
+        <Bye compiler="Typescript" framework= "React" />
     </div>,
-    document.getElementById("example")
+    document.getElementById("root")
 );
