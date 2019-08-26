@@ -24,12 +24,12 @@ export class TextComponent extends React.Component<{}, IndexState> {
         }
     }
 
-    public moveToNext = () => {
+    public moveToNext = (): void => {
         const randomInd: number = Math.floor(Math.random() * quotesArr.length);
         this.setState({index: randomInd})
     }
     public render() {
-        const item = quotesArr[this.state.index]
+        const item: {quote: string, author: string} = quotesArr[this.state.index];
         return (
         <div id="quote-box">
             <h1>Monty Python Quotes</h1>
