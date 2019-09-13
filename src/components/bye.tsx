@@ -1,24 +1,77 @@
 import * as React from "react";
 
-export interface ByeProps { 
-    compiler: string; 
-    framework: string; 
+export interface QuoteAuthor {
+    quote: string;
+    author: string;
 }
 
-interface ByeState { 
-    message: string 
+export interface ByeState { 
+    quotes: Array<QuoteAuthor>;
+    index: number;
+    url:string;
+    color: string;
 }
 
-// 'ByeProps' describes the shape of props.
-// State is never set so we use the '{}' type.
-export class Bye extends React.Component<ByeProps, ByeState> {
+export interface ByeProp {
+    url: string;
+    color: string;
+}
 
-    constructor(props: ByeProps) {
+export class Bye extends React.Component<ByeProp, ByeState> {
+    constructor(props: ByeProp){
         super(props);
-        this.state = { message: "bye" };
+        this.state = {
+            quotes: [],
+            index: 0,
+            url: props.url,
+            color: props.color
+        }
+    }
+
+    componentDidMount() {
+        this.fetchQuotes(this.state.url)
+        .then(x => this.setState({
+            quotes: x
+        }))
+        .then(()=> this.setRandomIndex());
+    }
+
+    fetchQuotes = (url: string): Promise<QuoteAuthor[]> => {
+        return fetch(url) 
+        .then(res => res.json());
+    }
+
+    setRandomIndex = () => {
+        const randomIndex: number = Math.floor(Math.random() * this.state.quotes.length);
+        this.setState({index: randomIndex});
+    }
+
+    getNextQuote = (): void => {
+        this.setRandomIndex();
     }
 
     render() {
-        return <div><input type="text" value={this.state.message} onChange={(e) => this.setState({ message: e.target.value})}/><h1>{this.state.message} from {this.props.compiler} and {this.props.framework}!</h1></div>;
+        const randomQuote = this.state.quotes[this.state.index];
+        if(randomQuote !== undefined) {
+        return (
+            <div>
+                <h1 style={ { color: this.state.color }}>Random Quote Generator</h1>
+                <div>
+                    <blockquote>
+                        <q>{randomQuote.quote}</q>
+                        <footer>--{randomQuote.author}</footer>
+                    </blockquote>
+                </div>
+                <div>
+                    <button onClick={this.getNextQuote}>Next Quote</button>
+                    <button>
+                        <a href={`https://twitter.com/intent/tweet?text=${randomQuote.quote} ${randomQuote.author}`} target="_blank" title="Post this quote on Twitter">Tweet Quote</a>
+                    </button>
+                </div>
+            </div>
+        )
+        } else {
+            return <div></div>
+        }
     }
 }

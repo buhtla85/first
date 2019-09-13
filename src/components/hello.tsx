@@ -1,7 +1,8 @@
 import * as React from "react";
+import { QuoteAuthor } from "./bye";
 
 
-const quotesArr: Array<{quote: string, author: string}> = [
+const quotesArr: Array<QuoteAuthor> = [
     {quote: 'Nobody expects the Spanish Inquisition!', author: 'Michael Palin'},
     {quote: "Spam! Spam! Spam! Spam! Spam! Spam!", author: "Terry Jones"},
     {quote: "We're an anarcho-syndicalist commune.", author: "Michael Palin"},
@@ -13,6 +14,10 @@ const quotesArr: Array<{quote: string, author: string}> = [
 
 export interface IndexState {
     index: number;
+}
+
+export function getQuotes(url: string) {
+    return Promise.resolve(quotesArr);
 }
   
 
