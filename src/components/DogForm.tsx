@@ -27,20 +27,21 @@ export default class DogForm extends Component<{}, IStateDog> {
         this.setState({
             dogs: this.state.dogs.concat([{dogName:"", dogBreed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}])
         });
-    }
+    }  
 
     removeDog = (index: number) => () => {
         this.setState({
             dogs: this.state.dogs.filter((dog: IDogObject, dogIndex: number) => index !== dogIndex)
         })
-    }
+    } // if we store in the state two dog objects, but want to remove first, an error ocurs 
+    // UPDATE: error fixed - just needed to bind value of the user input in the markup
 
-    handleChange = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newDogs = this.state.dogs.map((dog: IDogObject, dogIndex: number) => {
+    handleNameChange = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newDog = this.state.dogs.map((dog: IDogObject, dogIndex: number) => {
             if (index !== dogIndex) return dog;
-            return {...dog, [event.target.name]: event.target.value}
+            return {...dog, dogName: event.target.value}
         });
-        this.setState({dogs: newDogs})
+        this.setState({dogs: newDog})
         // if ("form-control dogName".includes(event.target.className) || "form-control dogBreed".includes(event.target.className)) {
         //     let newDogs = [...this.state.dogs];
         //     newDogs[event.target.dataset.id][event.target.className] = event.target.value
@@ -53,8 +54,16 @@ export default class DogForm extends Component<{}, IStateDog> {
         // dogsCopy[1] = firstPropDog;
     }
 
+    handleBreedChange = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newDog = this.state.dogs.map((dog: IDogObject, dogIndex: number) => {
+            if (index !== dogIndex) return dog;
+            return {...dog, dogBreed: event.target.value}
+        });
+        this.setState({dogs: newDog})
+    }
+
     handleFoodCheck = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newDogs = this.state.dogs.map((dog: IDogObject, dogIndex: number) => {
+        const newDog = this.state.dogs.map((dog: IDogObject, dogIndex: number) => {
             if (index !== dogIndex) return dog;
 
             if (event.target.checked === true) {
@@ -63,11 +72,11 @@ export default class DogForm extends Component<{}, IStateDog> {
                 return {...dog, food: event.target.checked, foodPrice: 0}
             }
         });
-        this.setState({dogs: newDogs})
+        this.setState({dogs: newDog})
     }
 
     handleGroomCheck = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newDogs = this.state.dogs.map((dog: IDogObject, dogIndex: number) => {
+        const newDog = this.state.dogs.map((dog: IDogObject, dogIndex: number) => {
             if (index !== dogIndex) return dog;
            
             if (event.target.checked === true) {
@@ -76,7 +85,7 @@ export default class DogForm extends Component<{}, IStateDog> {
                 return {...dog, grooming: event.target.checked, groomPrice: 0}
             }
         });
-        this.setState({dogs: newDogs})
+        this.setState({dogs: newDog})
     }
 
     render() {
@@ -89,11 +98,11 @@ export default class DogForm extends Component<{}, IStateDog> {
                            <div key={index}>
                                <div className="form-group">
                                     <label htmlFor="dogName">{`Dog #${index + 1} name:`}</label>
-                                    <input type="text" name="dogName" id={dogId} data-id={index} className="form-control dogName" onChange={this.handleChange(index)}/>
+                                    <input type="text" value={dog.dogName} name="dogName" id={dogId} data-id={index} className="form-control dogName" onChange={this.handleNameChange(index)}/>
                                </div>
                                <div className="form-group">
                                     <label htmlFor="dogBreed">Breed: </label>
-                                    <input type="text" name="dogBreed" id={breedId} data-id={index} className="form-control dogBreed" onChange={this.handleChange(index)}/>
+                                    <input type="text" value={dog.dogBreed} name="dogBreed" id={breedId} data-id={index} className="form-control dogBreed" onChange={this.handleBreedChange(index)}/>
                                </div>
                                <div className="form-group form-check">
                                    <input type="checkbox" checked={dog.food} name="food" className="form-check-input" onChange={this.handleFoodCheck(index)}/>
