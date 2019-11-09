@@ -2,8 +2,6 @@ import React from 'react';
 import DogForm from "./DogForm";
 import { differenceInDays } from "date-fns";
 
-//add dog prelazi ovde i remove - ovo je soba sa nizom pasa
-
  interface IDog {
     name: string,
     breed: string,
@@ -17,8 +15,9 @@ interface IRoom {
     startDate: string,
     endDate: string,
     dogs: IDog[], //implementing reduce function to calculate foodTotal and groomTotal
-    roomType: string, // choosing a option from select dropdown should store a string here... 
-    days: number, // endDate - startDate, but how????
+    dropDownText: string,
+    roomPrice: number, 
+    days: number, 
     foodTotal: number, //days * number of dogs from dogs array who checked food till ex: (y * (x) * 2)
     groomTotal: number, // number of dogs from dogs array who checked grooming (x * 10)
     roomTotalPrice: number // days * roomType + foodTotal + groomTotal
@@ -27,7 +26,7 @@ interface IRoom {
 class RoomForm extends React.Component<{}, IRoom> {
     constructor(props:any) {
         super(props);
-        this.state = {startDate:"", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], roomType: "", days: 0, foodTotal: 0, groomTotal: 0, roomTotalPrice: 0}
+        this.state = {startDate:"", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], dropDownText: "Choose a room...", days: 0, foodTotal: 0, groomTotal: 0, roomTotalPrice: 0, roomPrice: 0}
     }
 
     addNewDog = () => {
@@ -77,11 +76,11 @@ class RoomForm extends React.Component<{}, IRoom> {
     }
 
     handleStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({startDate: event.target.value})
+        this.setState({startDate: event.target.value}, () => this.calculateDays());
     }
 
     handleEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({endDate: event.target.value}, () => this.calculateDays());
+        this.setState({endDate: event.target.value}, () => this.calculateDays()); // if we insert date values for endDate first, and values for startDate afterwards, the function calculateDays is not working - we get the value NaN
     }
 
     calculateDays = () => {
@@ -89,6 +88,13 @@ class RoomForm extends React.Component<{}, IRoom> {
         const end = new Date(this.state.endDate);
         const result = differenceInDays(end, start);
         this.setState({days: result});
+    }
+
+    handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const price = event.target.value;
+        if(typeof price === "string") {
+            this.setState({roomPrice: parseInt(price)})
+        }
     }
 
     render() {
@@ -104,8 +110,8 @@ class RoomForm extends React.Component<{}, IRoom> {
                         <input type="date" value={this.state.endDate} onChange={this.handleEndDate} name="endDate" className="mr-2 p-1"/>
                     </div>
                     <div className="col-auto">
-                        <select className="custom-select mr-sm-2">
-                            <option selected>Choose a room...</option>
+                        <select className="custom-select mr-sm-2" onChange={this.handleSelect}>
+                            <option selected>{this.state.dropDownText}</option>
                             <option value="10">Single dog room</option>
                             <option value="15">Two dogs room</option>
                             <option value="18">Three dogs room </option>
