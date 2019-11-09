@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-//this is a single dog! you will need to define an interface for props as well (index), but props will be passed down from Room component
-
 export interface IDogProp {
     singleDog: {name: string, breed: string, food: boolean, grooming: boolean, foodPrice: number, groomPrice: number},
     index: number,
