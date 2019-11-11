@@ -17,16 +17,17 @@ interface IRoom {
     dogs: IDog[], //implementing reduce function to calculate foodTotal and groomTotal
     dropDownText: string,
     roomPrice: number, 
-    days: number, 
+    days: number,
     foodTotal: number, //days * number of dogs from dogs array who checked food till ex: (y * (x) * 2)
     groomTotal: number, // number of dogs from dogs array who checked grooming (x * 10)
-    roomTotalPrice: number // days * roomType + foodTotal + groomTotal
+    roomTotalPrice: number,
+    errMessage: string  // days * roomType + foodTotal + groomTotal
 }
 
 class RoomForm extends React.Component<{}, IRoom> {
     constructor(props:any) {
         super(props);
-        this.state = {startDate:"", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], dropDownText: "Choose a room...", days: 0, foodTotal: 0, groomTotal: 0, roomTotalPrice: 0, roomPrice: 0}
+        this.state = {startDate:"", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], dropDownText: "Choose a room...", days: 0, foodTotal: 0, groomTotal: 0, roomTotalPrice: 0, roomPrice: 0, errMessage: ""}
     }
 
     addNewDog = () => {
@@ -76,7 +77,7 @@ class RoomForm extends React.Component<{}, IRoom> {
     }
 
     handleStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({startDate: event.target.value}, () => this.calculateDays());
+        this.setState({startDate: event.target.value});
     }
 
     handleEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +88,14 @@ class RoomForm extends React.Component<{}, IRoom> {
         const start = new Date(this.state.startDate);
         const end = new Date(this.state.endDate);
         const result = differenceInDays(end, start);
-        this.setState({days: result});
+        if (result <= 0) {
+            this.setState({errMessage: "Invalid input. Please try again."});
+            setTimeout(() => {
+                this.setState({errMessage: ""})
+            }, 5000);
+        } else {
+            this.setState({days: result});
+        } 
     }
 
     handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -105,13 +113,14 @@ class RoomForm extends React.Component<{}, IRoom> {
                         <label htmlFor="" className="mr-2">Staying from:</label>
                         <input type="date" value={this.state.startDate} onChange={this.handleStartDate} name="startDate" className="mr-2 p-1"/>
                     </div>
-                    <div className="col-auto">
+                    {this.state.startDate === "" ? "" : <div className="col-auto">
                         <label htmlFor="" className="mr-2">To:</label>
                         <input type="date" value={this.state.endDate} onChange={this.handleEndDate} name="endDate" className="mr-2 p-1"/>
-                    </div>
+                    </div>}
+                    <p>{this.state.errMessage}</p>
                     <div className="col-auto">
                         <select className="custom-select mr-sm-2" onChange={this.handleSelect}>
-                            <option selected>{this.state.dropDownText}</option>
+                            <option>{this.state.dropDownText}</option>
                             <option value="10">Single dog room</option>
                             <option value="15">Two dogs room</option>
                             <option value="18">Three dogs room </option>
@@ -136,8 +145,3 @@ export default RoomForm;
 
 
 
-// var parts ='2014-04-03'.split('-');
-// // Please pay attention to the month (parts[1]); JavaScript counts months from 0:
-// // January - 0, February - 1, etc.
-// var mydate = new Date(parts[0], parts[1] - 1, parts[2]); 
-// console.log(mydate.toDateString());
