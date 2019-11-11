@@ -21,17 +21,26 @@ interface IRoom {
     foodTotal: number, //days * number of dogs from dogs array who checked food till ex: (y * (x) * 2)
     groomTotal: number, // number of dogs from dogs array who checked grooming (x * 10)
     roomTotalPrice: number,
-    errMessage: string  // days * roomType + foodTotal + groomTotal
+    errMessageDate: string,
+    errMessageDogs: string,
+    counter: number  // days * roomType + foodTotal + groomTotal
 }
 
 class RoomForm extends React.Component<{}, IRoom> {
     constructor(props:any) {
         super(props);
-        this.state = {startDate:"", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], dropDownText: "Choose a room...", days: 0, foodTotal: 0, groomTotal: 0, roomTotalPrice: 0, roomPrice: 0, errMessage: ""}
+        this.state = {startDate:"", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], dropDownText: "Choose a room...", days: 0, foodTotal: 0, groomTotal: 0, roomTotalPrice: 0, roomPrice: 0, errMessageDate: "", counter: 0, errMessageDogs: ""}
     }
 
     addNewDog = () => {
-        this.setState({dogs: this.state.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}])});
+        if (this.state.dogs.length <= this.state.counter - 1) {
+            this.setState({dogs: this.state.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}])});
+        } else {
+            this.setState({errMessageDogs: "Maximum number of dogs for selected room exceeded."});
+            setTimeout(() => {
+                this.setState({errMessageDogs: ""})
+            }, 5000);
+        }
     }
 
     removeDog = (idx: number) => () => {
@@ -89,9 +98,9 @@ class RoomForm extends React.Component<{}, IRoom> {
         const end = new Date(this.state.endDate);
         const result = differenceInDays(end, start);
         if (result <= 0) {
-            this.setState({errMessage: "Invalid input. Please try again."});
+            this.setState({errMessageDate: "Invalid input. Please try again."});
             setTimeout(() => {
-                this.setState({errMessage: ""})
+                this.setState({errMessageDate: ""})
             }, 5000);
         } else {
             this.setState({days: result});
@@ -101,7 +110,26 @@ class RoomForm extends React.Component<{}, IRoom> {
     handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const price = event.target.value;
         if(typeof price === "string") {
-            this.setState({roomPrice: parseInt(price)})
+            this.setState({roomPrice: parseInt(price)}, () => this.counterRegulator());
+        }
+    }
+
+    counterRegulator = () => {
+        switch (this.state.roomPrice) {
+            case 10:
+                this.setState({counter: 1});
+                break;
+            case 15:
+                this.setState({counter: 2});
+                break;
+            case 18:
+                this.setState({counter: 3});
+                break;
+            case 20:
+                this.setState({counter: 4});
+                break;
+            default:
+                this.setState({counter: 0})    
         }
     }
 
@@ -117,7 +145,7 @@ class RoomForm extends React.Component<{}, IRoom> {
                         <label htmlFor="" className="mr-2">To:</label>
                         <input type="date" value={this.state.endDate} onChange={this.handleEndDate} name="endDate" className="mr-2 p-1"/>
                     </div>}
-                    <p>{this.state.errMessage}</p>
+                    <p className="text-danger">{this.state.errMessageDate}</p>
                     <div className="col-auto">
                         <select className="custom-select mr-sm-2" onChange={this.handleSelect}>
                             <option>{this.state.dropDownText}</option>
@@ -136,6 +164,7 @@ class RoomForm extends React.Component<{}, IRoom> {
                         </div>
                 )})}
                 <button type="button" className="btn btn-success mt-1" onClick={this.addNewDog}>Add New Dog</button>
+                <p className="text-danger">{this.state.errMessageDogs}</p>
             </div>
         )
     }
