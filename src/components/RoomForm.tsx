@@ -26,6 +26,7 @@ interface IRoomProp {
     index: number,
     changeStartDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
     changeEndDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    changeSelected: (event: React.ChangeEvent<HTMLSelectElement>) => void,
 }
 
 class RoomForm extends React.Component<IRoomProp, {}> {
@@ -86,24 +87,6 @@ class RoomForm extends React.Component<IRoomProp, {}> {
         this.setState({dogs: groomCheck});
     }
 
-    handleEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({endDate: event.target.value}, () => this.calculateDays()); // if we insert date values for endDate first, and values for startDate afterwards, the function calculateDays is not working - we get the value NaN
-    }
-
-    calculateDays = () => {
-        const start = new Date(this.props.singleRoom.startDate);
-        const end = new Date(this.props.singleRoom.endDate);
-        const result = differenceInDays(end, start);
-        if (result <= 0) {
-            this.setState({errMessageDate: "Invalid input. Please try again."});
-            setTimeout(() => {
-                this.setState({errMessageDate: ""})
-            }, 5000);
-        } else {
-            this.setState({days: result});
-        } 
-    }
-
     handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const price = event.target.value;
         if(typeof price === "string") {
@@ -145,7 +128,7 @@ class RoomForm extends React.Component<IRoomProp, {}> {
                     </div>}
                     <p className="text-danger">{this.props.singleRoom.errMessageDate}</p>
                     <div className="col-auto">
-                        <select className="custom-select mr-sm-2" onChange={this.handleSelect}>
+                        <select className="custom-select mr-sm-2" onChange={this.props.changeSelected}>
                             <option>{this.props.singleRoom.dropDownText}</option>
                             <option value="10">Single dog room</option>
                             <option value="15">Two dogs room</option>
