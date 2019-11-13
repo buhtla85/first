@@ -11,30 +11,31 @@ import { differenceInDays } from "date-fns";
     groomPrice: number
 }
 
-interface IRoom {
-    startDate: string,
-    endDate: string,
-    dogs: IDog[], //implementing reduce function to calculate foodTotal and groomTotal
-    dropDownText: string,
-    roomPrice: number, 
-    days: number,
-    foodTotal: number, //days * number of dogs from dogs array who checked food till ex: (y * (x) * 2)
-    groomTotal: number, // number of dogs from dogs array who checked grooming (x * 10)
-    roomTotalPrice: number,
-    errMessageDate: string,
-    errMessageDogs: string,
-    counter: number  // days * roomType + foodTotal + groomTotal
+interface IRoomProp {
+    singleRoom: {
+        startDate: string,
+        endDate: string,
+        dogs: IDog[], 
+        dropDownText: string,
+        days: number,
+        errMessageDate: string,
+        errMessageDogs: string,
+        counter: number,
+        roomPrice: number  
+    },
+    index: number,
+    changeStartDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    changeEndDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
 }
 
-class RoomForm extends React.Component<{}, IRoom> {
-    constructor(props:any) {
+class RoomForm extends React.Component<IRoomProp, {}> {
+    constructor(props:IRoomProp) {
         super(props);
-        this.state = {startDate:"", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], dropDownText: "Choose a room...", days: 0, foodTotal: 0, groomTotal: 0, roomTotalPrice: 0, roomPrice: 0, errMessageDate: "", counter: 0, errMessageDogs: ""}
     }
 
     addNewDog = () => {
-        if (this.state.dogs.length <= this.state.counter - 1) {
-            this.setState({dogs: this.state.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}])});
+        if (this.props.singleRoom.dogs.length <= this.props.singleRoom.counter - 1) {
+            this.setState({dogs: this.props.singleRoom.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}])});
         } else {
             this.setState({errMessageDogs: "Maximum number of dogs for selected room exceeded."});
             setTimeout(() => {
@@ -44,25 +45,25 @@ class RoomForm extends React.Component<{}, IRoom> {
     }
 
     removeDog = (idx: number) => () => {
-        this.setState({dogs: this.state.dogs.filter((dog: IDog, dogIndex: number) => idx !== dogIndex)});
+        this.setState({dogs: this.props.singleRoom.dogs.filter((dog: IDog, dogIndex: number) => idx !== dogIndex)});
     }
 
     addDogName = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newDog = this.state.dogs.map((dog: IDog, dogIndex: number) => 
+        const newDog = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => 
             idx !== dogIndex ? dog : {...dog, name: event.target.value}
         );
         this.setState({dogs: newDog});
     }
 
     addBreedName = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newBreed = this.state.dogs.map((dog: IDog, dogIndex: number) => 
+        const newBreed = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => 
             idx !== dogIndex ? dog : {...dog, breed: event.target.value}
         );
         this.setState({dogs: newBreed});
     }
 
     isFoodChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const checkFood = this.state.dogs.map((dog: IDog, dogIndex: number) => {
+        const checkFood = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => {
             if (idx !== dogIndex) return dog;
             if (event.target.checked === true) {
                 return {...dog, food: event.target.checked, foodPrice: 2}
@@ -74,7 +75,7 @@ class RoomForm extends React.Component<{}, IRoom> {
     }
 
     isGroomingChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const groomCheck = this.state.dogs.map((dog: IDog, dogIndex: number) => {
+        const groomCheck = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => {
             if (idx !== dogIndex) return dog;
             if (event.target.checked === true) {
                 return {...dog, grooming: event.target.checked, groomPrice: 10}
@@ -85,17 +86,13 @@ class RoomForm extends React.Component<{}, IRoom> {
         this.setState({dogs: groomCheck});
     }
 
-    handleStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({startDate: event.target.value});
-    }
-
     handleEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({endDate: event.target.value}, () => this.calculateDays()); // if we insert date values for endDate first, and values for startDate afterwards, the function calculateDays is not working - we get the value NaN
     }
 
     calculateDays = () => {
-        const start = new Date(this.state.startDate);
-        const end = new Date(this.state.endDate);
+        const start = new Date(this.props.singleRoom.startDate);
+        const end = new Date(this.props.singleRoom.endDate);
         const result = differenceInDays(end, start);
         if (result <= 0) {
             this.setState({errMessageDate: "Invalid input. Please try again."});
@@ -115,7 +112,7 @@ class RoomForm extends React.Component<{}, IRoom> {
     }
 
     counterRegulator = () => {
-        switch (this.state.roomPrice) {
+        switch (this.props.singleRoom.roomPrice) {
             case 10:
                 this.setState({counter: 1});
                 break;
@@ -136,19 +133,20 @@ class RoomForm extends React.Component<{}, IRoom> {
     render() {
         return (
             <div className="container pt-3">
+                <h4>{`Room #${this.props.index + 1}`}</h4>
                 <div className="form-row align-items-center">
                     <div className="col-auto">
                         <label htmlFor="" className="mr-2">Staying from:</label>
-                        <input type="date" value={this.state.startDate} onChange={this.handleStartDate} name="startDate" className="mr-2 p-1"/>
+                        <input type="date" value={this.props.singleRoom.startDate} onChange={this.props.changeStartDate} name="startDate" className="mr-2 p-1"/>
                     </div>
-                    {this.state.startDate === "" ? "" : <div className="col-auto">
+                    {this.props.singleRoom.startDate === "" ? "" : <div className="col-auto">
                         <label htmlFor="" className="mr-2">To:</label>
-                        <input type="date" value={this.state.endDate} onChange={this.handleEndDate} name="endDate" className="mr-2 p-1"/>
+                        <input type="date" value={this.props.singleRoom.endDate} onChange={this.props.changeEndDate} name="endDate" className="mr-2 p-1"/>
                     </div>}
-                    <p className="text-danger">{this.state.errMessageDate}</p>
+                    <p className="text-danger">{this.props.singleRoom.errMessageDate}</p>
                     <div className="col-auto">
                         <select className="custom-select mr-sm-2" onChange={this.handleSelect}>
-                            <option>{this.state.dropDownText}</option>
+                            <option>{this.props.singleRoom.dropDownText}</option>
                             <option value="10">Single dog room</option>
                             <option value="15">Two dogs room</option>
                             <option value="18">Three dogs room </option>
@@ -156,7 +154,7 @@ class RoomForm extends React.Component<{}, IRoom> {
                         </select>
                     </div>
                 </div>
-                {this.state.dogs.map((dog: IDog, idx: number) => {
+                {this.props.singleRoom.dogs.map((dog: IDog, idx: number) => {
                     return (
                         <div key={idx}>
                             <DogForm singleDog={dog} index={idx} changeName={this.addDogName(idx)} changeBreed={this.addBreedName(idx)} foodCheck={this.isFoodChecked(idx)} groomCheck={this.isGroomingChecked(idx)}/>
@@ -164,7 +162,7 @@ class RoomForm extends React.Component<{}, IRoom> {
                         </div>
                 )})}
                 <button type="button" className="btn btn-success mt-1" onClick={this.addNewDog}>Add New Dog</button>
-                <p className="text-danger">{this.state.errMessageDogs}</p>
+                <p className="text-danger">{this.props.singleRoom.errMessageDogs}</p>
             </div>
         )
     }
