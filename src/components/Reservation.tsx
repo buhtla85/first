@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import RoomForm from "./RoomForm";
 import { differenceInDays } from "date-fns";
-import { number } from 'prop-types';
 
 
 interface IDog {
@@ -22,7 +21,7 @@ interface IRoom {
     errMessageDate: string,
     errMessageDogs: string,
     counter: number,
-    roomPrice: number  
+    roomPrice: number,
 }
 
 interface IStateRoom {
@@ -94,8 +93,118 @@ export default class Reservation extends Component <{}, IStateRoom> {
             const selectedValue = this.state.rooms.map((room: IRoom, roomIdx: number) => 
                 idx !== roomIdx ? room : {...room, roomPrice: parseInt(price)}
             );
-            this.setState({rooms: selectedValue})
+            this.setState({rooms: selectedValue}, () => this.counterSetter(idx))
         }
+    }
+
+    counterSetter = (idx: number) => {
+        switch(this.state.rooms[idx].roomPrice) {
+            case 10:
+                const counterValOne = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 1});
+                this.setState({rooms: counterValOne});
+                break;
+            case 15: 
+                let counterValTwo = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 2});
+                this.setState({rooms: counterValTwo});
+                break;
+            case 18: 
+                const counterValThree = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 3});
+                this.setState({rooms: counterValThree});
+                break;
+            case 20: 
+                const counterValFour = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 4});
+                this.setState({rooms: counterValFour});
+                break;
+            default:
+                const defaultVal = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 0});
+                this.setState({rooms: defaultVal});
+        }
+    }
+
+    addDogName = (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newDog = this.state.rooms.map((room: IRoom, roomIdx: number) => {
+            if (idx !== roomIdx) {
+                return room;
+            } else {
+                const newValue = room.dogs.map((dog: IDog, dogIdx: number) => index !== dogIdx ? dog : {...dog, name: event.target.value});
+                const newItem = {...room, dogs: newValue};
+                return newItem;
+            }
+        });
+        this.setState({rooms: newDog});
+    }
+
+    addBreedName = (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newBreed = this.state.rooms.map((room: IRoom, roomIdx: number) => {
+            if (idx !== roomIdx) {
+                return room;
+            } else {
+                const newVal = room.dogs.map((dog: IDog, dogIdx: number) => index !== dogIdx ? dog : {...dog, breed: event.target.value});
+                const newItem = {...room, dogs: newVal};
+                return newItem;
+            }
+        });
+        this.setState({rooms: newBreed});
+    }
+
+    isFoodChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const foodCheck = this.state.rooms.map((room: IRoom, roomIdx: number) => {
+            if (idx !== roomIdx) {
+                return room;
+            } else {
+                const newValue = room.dogs.map((dog: IDog) => {
+                    if (event.target.checked === true) {
+                        return {...dog, food: event.target.checked, foodPrice: 2};
+                    } else {
+                        return {...dog, food: event.target.checked, foodPrice: 0};
+                    }
+                });
+                const newItem = {...room, dogs: newValue};
+                return newItem;
+            }
+        });
+        this.setState({rooms: foodCheck});
+    }
+
+    isGroomingChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const groomCheck = this.state.rooms.map((room: IRoom, roomIdx: number) => {
+            if (idx !== roomIdx) {
+                return room;
+            } else {
+                const newValue = room.dogs.map((dog: IDog) => {
+                    if (event.target.checked === true) {
+                        return {...dog, grooming: event.target.checked, groomPrice: 10};
+                    } else {
+                        return {...dog, grooming: event.target.checked, groomPrice: 0};
+                    }
+                });
+                const newItem = {...room, dogs: newValue};
+                return newItem;
+            }
+        });
+        this.setState({rooms: groomCheck});
+    }
+
+    addNewDog = (idx: number) => () => { //there are some problems with this function - inconsistencies with code and weird behaviour when user tries to add a dog without selecting type of room first
+        const addDog = this.state.rooms.map((room: IRoom, roomIdx: number) => {
+            if (idx !== roomIdx) return room;
+            if (room.dogs.length <= room.counter - 1) {
+                const newValue = room.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}]);
+                const newItem = {...room, dogs: newValue};
+                return newItem;
+            } else {
+                const newValue = {...room, errMessageDogs: "Maximum number of dogs for selected room exceeded."};
+                setTimeout(() => {
+                    const addEmptyString = this.state.rooms.map((room: IRoom, roomIdx: number) => 
+                        idx !== roomIdx ? room : {...room, errMessageDogs: ""}
+                    );
+                    this.setState({rooms: addEmptyString});
+                }, 5000);
+                const newItem = newValue;
+                return newItem;
+            }
+        });
+        this.setState({rooms: addDog})
     }
     
     render() {
@@ -105,7 +214,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
                     {this.state.rooms.map((room: IRoom, idx: number) => {
                         return (
                             <div key={idx}>
-                                <RoomForm singleRoom={room} index={idx} changeStartDate={this.addStartDate(idx)} changeEndDate={this.addEndDate(idx)} changeSelected={this.handleDropdown(idx)}/>
+                                <RoomForm singleRoom={room} index={idx} changeStartDate={this.addStartDate(idx)} changeEndDate={this.addEndDate(idx)} changeSelected={this.handleDropdown(idx)} handleDogName={this.addDogName(idx)} handleDogBreed={this.addBreedName(idx)} handleFood={this.isFoodChecked(idx)} handleGrooming={this.isGroomingChecked(idx)} handleAddingDogs={this.addNewDog(idx)}/>
                                 <button type="button" className="btn btn-outline-danger" onClick={this.removeRoom(idx)}>Remove Room</button>
                             </div>
                         )
