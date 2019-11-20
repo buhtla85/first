@@ -21,12 +21,17 @@ interface IRoomProp {
         errMessageDate: string,
         errMessageDogs: string,
         counter: number,
-        roomPrice: number  
+        roomPrice: number, 
     },
     index: number,
     changeStartDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
     changeEndDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
     changeSelected: (event: React.ChangeEvent<HTMLSelectElement>) => void,
+    handleDogName: (index:number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
+    handleDogBreed: (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
+    handleFood: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    handleGrooming: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    handleAddingDogs: (event: React.MouseEvent<HTMLButtonElement>) => void ///event: MouseEvent<HTMLButtonElement, MouseEvent>
 }
 
 class RoomForm extends React.Component<IRoomProp, {}> {
@@ -140,11 +145,11 @@ class RoomForm extends React.Component<IRoomProp, {}> {
                 {this.props.singleRoom.dogs.map((dog: IDog, idx: number) => {
                     return (
                         <div key={idx}>
-                            <DogForm singleDog={dog} index={idx} changeName={this.addDogName(idx)} changeBreed={this.addBreedName(idx)} foodCheck={this.isFoodChecked(idx)} groomCheck={this.isGroomingChecked(idx)}/>
+                            <DogForm singleDog={dog} index={idx} changeName={this.props.handleDogName(idx)} changeBreed={this.props.handleDogBreed(idx)} foodCheck={this.props.handleFood} groomCheck={this.props.handleGrooming}/>
                             <button type="button" className="btn btn-danger" onClick={this.removeDog(idx)}>Remove Dog</button>
                         </div>
                 )})}
-                <button type="button" className="btn btn-success mt-1" onClick={this.addNewDog}>Add New Dog</button>
+                <button type="button" className="btn btn-success mt-1" onClick={this.props.handleAddingDogs}>Add New Dog</button>
                 <p className="text-danger">{this.props.singleRoom.errMessageDogs}</p>
             </div>
         )
