@@ -39,85 +39,84 @@ class RoomForm extends React.Component<IRoomProp, {}> {
     constructor(props:IRoomProp) {
         super(props);
     }
+    // addNewDog = () => {
+    //     if (this.props.singleRoom.dogs.length <= this.props.singleRoom.counter - 1) {
+    //         this.setState({dogs: this.props.singleRoom.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}])});
+    //     } else {
+    //         this.setState({errMessageDogs: "Maximum number of dogs for selected room exceeded."});
+    //         setTimeout(() => {
+    //             this.setState({errMessageDogs: ""})
+    //         }, 5000);
+    //     }
+    // }
 
-    addNewDog = () => {
-        if (this.props.singleRoom.dogs.length <= this.props.singleRoom.counter - 1) {
-            this.setState({dogs: this.props.singleRoom.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}])});
-        } else {
-            this.setState({errMessageDogs: "Maximum number of dogs for selected room exceeded."});
-            setTimeout(() => {
-                this.setState({errMessageDogs: ""})
-            }, 5000);
-        }
-    }
+    // removeDog = (idx: number) => () => {
+    //     this.setState({dogs: this.props.singleRoom.dogs.filter((dog: IDog, dogIndex: number) => idx !== dogIndex)});
+    // }
 
-    removeDog = (idx: number) => () => {
-        this.setState({dogs: this.props.singleRoom.dogs.filter((dog: IDog, dogIndex: number) => idx !== dogIndex)});
-    }
+    // addDogName = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const newDog = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => 
+    //         idx !== dogIndex ? dog : {...dog, name: event.target.value}
+    //     );
+    //     this.setState({dogs: newDog});
+    // }
 
-    addDogName = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newDog = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => 
-            idx !== dogIndex ? dog : {...dog, name: event.target.value}
-        );
-        this.setState({dogs: newDog});
-    }
+    // addBreedName = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const newBreed = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => 
+    //         idx !== dogIndex ? dog : {...dog, breed: event.target.value}
+    //     );
+    //     this.setState({dogs: newBreed});
+    // }
 
-    addBreedName = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newBreed = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => 
-            idx !== dogIndex ? dog : {...dog, breed: event.target.value}
-        );
-        this.setState({dogs: newBreed});
-    }
+    // isFoodChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const checkFood = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => {
+    //         if (idx !== dogIndex) return dog;
+    //         if (event.target.checked === true) {
+    //             return {...dog, food: event.target.checked, foodPrice: 2}
+    //         } else {
+    //             return {...dog, food: event.target.checked, foodPrice: 0}
+    //         }
+    //     });
+    //     this.setState({dogs: checkFood});
+    // }
 
-    isFoodChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const checkFood = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => {
-            if (idx !== dogIndex) return dog;
-            if (event.target.checked === true) {
-                return {...dog, food: event.target.checked, foodPrice: 2}
-            } else {
-                return {...dog, food: event.target.checked, foodPrice: 0}
-            }
-        });
-        this.setState({dogs: checkFood});
-    }
+    // isGroomingChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const groomCheck = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => {
+    //         if (idx !== dogIndex) return dog;
+    //         if (event.target.checked === true) {
+    //             return {...dog, grooming: event.target.checked, groomPrice: 10}
+    //         } else {
+    //             return {...dog, grooming: event.target.checked, groomPrice: 0}
+    //         }
+    //     });
+    //     this.setState({dogs: groomCheck});
+    // }
 
-    isGroomingChecked = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const groomCheck = this.props.singleRoom.dogs.map((dog: IDog, dogIndex: number) => {
-            if (idx !== dogIndex) return dog;
-            if (event.target.checked === true) {
-                return {...dog, grooming: event.target.checked, groomPrice: 10}
-            } else {
-                return {...dog, grooming: event.target.checked, groomPrice: 0}
-            }
-        });
-        this.setState({dogs: groomCheck});
-    }
+    // handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    //     const price = event.target.value;
+    //     if(typeof price === "string") {
+    //         this.setState({roomPrice: parseInt(price)}, () => this.counterRegulator());
+    //     }
+    // }
 
-    handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const price = event.target.value;
-        if(typeof price === "string") {
-            this.setState({roomPrice: parseInt(price)}, () => this.counterRegulator());
-        }
-    }
-
-    counterRegulator = () => {
-        switch (this.props.singleRoom.roomPrice) {
-            case 10:
-                this.setState({counter: 1});
-                break;
-            case 15:
-                this.setState({counter: 2});
-                break;
-            case 18:
-                this.setState({counter: 3});
-                break;
-            case 20:
-                this.setState({counter: 4});
-                break;
-            default:
-                this.setState({counter: 0})    
-        }
-    }
+    // counterRegulator = () => {
+    //     switch (this.props.singleRoom.roomPrice) {
+    //         case 10:
+    //             this.setState({counter: 1});
+    //             break;
+    //         case 15:
+    //             this.setState({counter: 2});
+    //             break;
+    //         case 18:
+    //             this.setState({counter: 3});
+    //             break;
+    //         case 20:
+    //             this.setState({counter: 4});
+    //             break;
+    //         default:
+    //             this.setState({counter: 0})    
+    //     }
+    // }
 
     render() {
         return (
