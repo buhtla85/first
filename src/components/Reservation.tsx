@@ -202,7 +202,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
                 const newValue = room.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}]);
                 const newItem = {...room, dogs: newValue};
                 return newItem;
-            } else if (room.dogs.length <= 0) {
+            } else if (room.dogs.length <= 1) {
                 const newValue = {...room, errMessageDogs: "Please be sure to chose a room type first."};
                 setTimeout(() => {
                     const addEmptyString = this.state.rooms.map((room: IRoom, roomIdx: number) => 
