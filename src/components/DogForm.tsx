@@ -28,11 +28,11 @@ export default class DogForm extends Component<IDogProp, {}> {
             <div className="pt-3">
                 <div className="form-group">
                     <label htmlFor="name">{`Dog #${this.props.index + 1} name:`}</label>
-                    <input type="text" name="name" value={this.props.singleDog.name} onChange={this.props.changeName} className="form-control"/>
+                    <input type="text" name="name" id="name" value={this.props.singleDog.name} onChange={this.props.changeName} className="form-control"/>
                 </div>
                 <div className="form-group">
                     <label htmlFor="breed">Breed: </label>
-                    <input type="text" name="breed" value={this.props.singleDog.breed} onChange={this.props.changeBreed} className="form-control"/>
+                    <input type="text" name="breed" id="breed" value={this.props.singleDog.breed} onChange={this.props.changeBreed} className="form-control"/>
                 </div>
                 <div className="form-group form-check">
                     <input type="checkbox" checked={this.props.singleDog.food} name="food" id="food" onChange={this.props.foodCheck} className="form-check-label"/>
