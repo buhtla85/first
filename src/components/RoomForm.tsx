@@ -1,14 +1,17 @@
 import React from 'react';
-import DogForm from "./DogForm";
+import DogForm, { IDog } from "./DogForm";
 import { differenceInDays } from "date-fns";
 
- interface IDog {
-    name: string,
-    breed: string,
-    food: boolean,
-    grooming: boolean,
-    foodPrice: number,
-    groomPrice: number
+export interface IRoom {
+    startDate: string,
+    endDate: string,
+    dogs: IDog[], 
+    dropDownText: string,
+    days: number,
+    errMessageDate: string,
+    errMessageDogs: string,
+    counter: number,
+    roomPrice: number,
 }
 
 interface IRoomProp {
@@ -24,8 +27,7 @@ interface IRoomProp {
         roomPrice: number, 
     },
     index: number,
-    changeStartDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
-    changeEndDate: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    changeDates: (event: React.ChangeEvent<HTMLInputElement>) => void,
     changeSelected: (event: React.ChangeEvent<HTMLSelectElement>) => void,
     handleDogName: (index:number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
     handleDogBreed: (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
@@ -125,27 +127,33 @@ class RoomForm extends React.Component<IRoomProp, {}> {
                 <div className="form-row align-items-center">
                     <div className="col-auto">
                         <label htmlFor="" className="mr-2">Staying from:</label>
-                        <input type="date" value={this.props.singleRoom.startDate} onChange={this.props.changeStartDate} name="startDate" className="mr-2 p-1"/>
+                        <input type="date" value={this.props.singleRoom.startDate} onChange={this.props.changeDates} name="startDate" className="mr-2 p-1"/>
                     </div>
                     {this.props.singleRoom.startDate === "" ? "" : <div className="col-auto">
                         <label htmlFor="" className="mr-2">To:</label>
-                        <input type="date" value={this.props.singleRoom.endDate} onChange={this.props.changeEndDate} name="endDate" className="mr-2 p-1"/>
+                        <input type="date" value={this.props.singleRoom.endDate} onChange={this.props.changeDates} name="endDate" className="mr-2 p-1"/>
                     </div>}
                     <p className="text-danger">{this.props.singleRoom.errMessageDate}</p>
                     <div className="col-auto">
                         <select className="custom-select mr-sm-2" onChange={this.props.changeSelected}>
                             <option>{this.props.singleRoom.dropDownText}</option>
-                            <option value="10">Single dog room</option>
-                            <option value="15">Two dogs room</option>
-                            <option value="18">Three dogs room </option>
-                            <option value="20">Four dogs room</option>
+                            <option value="1">Single dog room</option>
+                            <option value="2">Two dogs room</option>
+                            <option value="3">Three dogs room </option>
+                            <option value="4">Four dogs room</option>
                         </select>
                     </div>
                 </div>
                 {this.props.singleRoom.dogs.map((dog: IDog, idx: number) => {
                     return (
                         <div key={idx}>
-                            <DogForm singleDog={dog} index={idx} changeName={this.props.handleDogName(idx)} changeBreed={this.props.handleDogBreed(idx)} foodCheck={this.props.handleFood(idx)} groomCheck={this.props.handleGrooming(idx)}/>
+                            <DogForm 
+                                singleDog={dog} 
+                                index={idx} 
+                                changeName={this.props.handleDogName(idx)} 
+                                changeBreed={this.props.handleDogBreed(idx)} 
+                                foodCheck={this.props.handleFood(idx)} 
+                                groomCheck={this.props.handleGrooming(idx)}/>
                             <button type="button" className="btn btn-danger" onClick={this.props.handleRemovingDogs(idx)}>Remove Dog</button>
                         </div>
                 )})}
