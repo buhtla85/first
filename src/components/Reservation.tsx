@@ -1,29 +1,8 @@
 import React, { Component } from 'react';
-import RoomForm from "./RoomForm";
+import RoomForm, { IRoom } from "./RoomForm";
 import { differenceInDays } from "date-fns";
-import DogForm from './DogForm';
-
-
-interface IDog {
-    name: string,
-    breed: string,
-    food: boolean,
-    grooming: boolean,
-    foodPrice: number,
-    groomPrice: number
-}
-
-interface IRoom {
-    startDate: string,
-    endDate: string,
-    dogs: IDog[], 
-    dropDownText: string,
-    days: number,
-    errMessageDate: string,
-    errMessageDogs: string,
-    counter: number,
-    roomPrice: number,
-}
+import { IDog } from './DogForm';
+import { number } from 'prop-types';
 
 interface IStateRoom {
     rooms: IRoom[],
@@ -32,43 +11,51 @@ interface IStateRoom {
     errMessage: string,
     errMessageName: string,
     errMessageMail: string,
-    totalPrice: number 
+    totalPrice: number, 
+    dogServicesPricing: {
+        foodPrice: number,
+        groomPrice: number
+    },
+    roomPricing: { 1: number, 2: number, 3: number, 4: number }
+}
+
+function createDog(): IDog {
+    return {name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0};
+}
+function createRoom(counter: number, roomPrice: number): IRoom {
+    return {startDate: "", endDate: "", dogs: [createDog()], dropDownText: "Chose a room...", days: 0, errMessageDate: "", errMessageDogs: "", counter, roomPrice };
 }
 
 export default class Reservation extends Component <{}, IStateRoom> {
     constructor(props: any) {
         super(props);
             this.state = {
-                rooms: [{startDate: "", endDate: "", dogs: [{name: "", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}], dropDownText: "Chose a room...", days: 0, errMessageDate: "", errMessageDogs: "", counter: 0, roomPrice: 0}], 
+                rooms: [createRoom(0,0)],
                 ownerName: "",
                 ownerEmail: "",
                 errMessage: "",
                 errMessageName: "",
                 errMessageMail: "",
-                totalPrice: 0
+                totalPrice: 0,
+                dogServicesPricing: {
+                    foodPrice: 0,
+                    groomPrice: 0
+                },
+                roomPricing: { 1: 10, 2: 15, 3: 18, 4: 20 }
         }
     }
 
     addRoom = () => {
-        this.setState({rooms: this.state.rooms.concat([{startDate: "", endDate: "", days: 0, dogs: [{breed: "", name: "", groomPrice: 0, foodPrice: 0, grooming: false, food: false}], dropDownText: "Chose a room...", errMessageDogs: "", errMessageDate: "", counter: 0, roomPrice: 0}])});
+        this.setState({rooms: this.state.rooms.concat([createRoom(0,0)])});
     }
 
     removeRoom = (idx: number) => () => {
         this.setState({rooms: this.state.rooms.filter((room: IRoom, roomIdx: number) => idx !== roomIdx)});
     }
 
-    addStartDate = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newStartDate = this.state.rooms.map((room: IRoom, roomIdx: number) => 
-            idx !== roomIdx ? room : {...room, startDate: event.target.value}
-        );
-        this.setState({rooms: newStartDate}, () => this.calculateDays(idx)); // this evaluates to NaN first when user inserts start date
-    }
-
-    addEndDate = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newEndDate = this.state.rooms.map((room: IRoom, roomIndex: number) => 
-            idx !== roomIndex ? room : {...room, endDate: event.target.value}
-        );
-        this.setState({rooms: newEndDate}, () => this.calculateDays(idx));
+    handleDateInputs = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const date = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, [event.target.name]: event.target.value});
+        this.setState({rooms: date}, () => this.calculateDays(idx));
     }
 
     calculateDays = (idx: number) => {
@@ -95,36 +82,14 @@ export default class Reservation extends Component <{}, IStateRoom> {
     }
 
     handleDropdown = (idx: number) => (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const price = event.target.value;
-        if(typeof price === "string") {
+        if(typeof event.target.value === "string") {
+        const capacity = parseInt(event.target.value) as 1 | 2 | 3 | 4;
+        const price = this.state.roomPricing[capacity];
+       
             const selectedValue = this.state.rooms.map((room: IRoom, roomIdx: number) => 
-                idx !== roomIdx ? room : {...room, roomPrice: parseInt(price)}
+                idx !== roomIdx ? room : {...room, roomPrice: price, counter: capacity}
             );
-            this.setState({rooms: selectedValue}, () => this.counterSetter(idx))
-        }
-    }
-
-    counterSetter = (idx: number) => {
-        switch(this.state.rooms[idx].roomPrice) {
-            case 10:
-                const counterValOne = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 1});
-                this.setState({rooms: counterValOne});
-                break;
-            case 15: 
-                let counterValTwo = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 2});
-                this.setState({rooms: counterValTwo});
-                break;
-            case 18: 
-                const counterValThree = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 3});
-                this.setState({rooms: counterValThree});
-                break;
-            case 20: 
-                const counterValFour = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 4});
-                this.setState({rooms: counterValFour});
-                break;
-            default:
-                const defaultVal = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, counter: 0});
-                this.setState({rooms: defaultVal});
+            this.setState({rooms: selectedValue});
         }
     }
 
@@ -154,7 +119,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
         this.setState({rooms: newBreed});
     }
 
-    isFoodChecked = (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    isFoodChecked = (price: number) => (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const foodCheck = this.state.rooms.map((room: IRoom, roomIdx: number) => {
             if (idx !== roomIdx) {
                 return room;
@@ -162,7 +127,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
                 const newValue = room.dogs.map((dog: IDog, dogIdx: number) => {
                     if (index !== dogIdx) return dog;
                     if (event.target.checked === true) {
-                        return {...dog, food: event.target.checked, foodPrice: 2};
+                        return {...dog, food: event.target.checked, foodPrice: price};
                     } else {
                         return {...dog, food: event.target.checked, foodPrice: 0};
                     }
@@ -174,7 +139,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
         this.setState({rooms: foodCheck});
     }
 
-    isGroomingChecked = (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    isGroomingChecked = (price: number) => (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const groomCheck = this.state.rooms.map((room: IRoom, roomIdx: number) => {
             if (idx !== roomIdx) {
                 return room;
@@ -182,7 +147,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
                 const newValue = room.dogs.map((dog: IDog, dogIdx: number) => {
                     if (index !== dogIdx) return dog;
                     if (event.target.checked === true) {
-                        return {...dog, grooming: event.target.checked, groomPrice: 10};
+                        return {...dog, grooming: event.target.checked, groomPrice: price};
                     } else {
                         return {...dog, grooming: event.target.checked, groomPrice: 0};
                     }
@@ -303,6 +268,15 @@ export default class Reservation extends Component <{}, IStateRoom> {
             }, 4000);
         }
     }
+
+    fetchPrices = () => {
+        return Promise.resolve({groomPrice: 10, foodPrice: 2});
+    }
+
+    async componentDidMount() {
+        const prices = await this.fetchPrices();
+        this.setState({dogServicesPricing: prices});
+    }
     
     render() {
         return (
@@ -311,7 +285,17 @@ export default class Reservation extends Component <{}, IStateRoom> {
                     {this.state.rooms.map((room: IRoom, idx: number) => {
                         return (
                             <div key={idx}>
-                                <RoomForm singleRoom={room} index={idx} changeStartDate={this.addStartDate(idx)} changeEndDate={this.addEndDate(idx)} changeSelected={this.handleDropdown(idx)} handleDogName={this.addDogName(idx)} handleDogBreed={this.addBreedName(idx)} handleFood={this.isFoodChecked(idx)} handleGrooming={this.isGroomingChecked(idx)} handleAddingDogs={this.addNewDog(idx)} handleRemovingDogs={this.removeDog(idx)}/>
+                                <RoomForm 
+                                    singleRoom={room} 
+                                    index={idx} 
+                                    changeDates={this.handleDateInputs(idx)} 
+                                    changeSelected={this.handleDropdown(idx)} 
+                                    handleDogName={this.addDogName(idx)} 
+                                    handleDogBreed={this.addBreedName(idx)} 
+                                    handleFood={this.isFoodChecked(this.state.dogServicesPricing.foodPrice)(idx)} 
+                                    handleGrooming={this.isGroomingChecked(this.state.dogServicesPricing.groomPrice)(idx)} 
+                                    handleAddingDogs={this.addNewDog(idx)} 
+                                    handleRemovingDogs={this.removeDog(idx)}/>
                                 <button type="button" className="btn btn-outline-danger" onClick={this.removeRoom(idx)}>Remove Room</button>
                             </div>
                         )
@@ -332,7 +316,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
                         <div className="d-flex justify-content-center">
                             <button type="submit" className="btn btn-success mt-2">Submit</button>
                         </div>
-                        <p>{`Total price is ${this.state.totalPrice} dollars.`}</p>
+                        <p>{`Total price is ${this.state.rooms.reduce((total, room) => total + (room.roomPrice + room.dogs.reduce((subtotal, dog) => subtotal + dog.foodPrice, 0)) * room.days, 0)} dollars.`}</p>
                     </div>
             
                 </form>
