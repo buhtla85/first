@@ -1,6 +1,5 @@
 import React from 'react';
 import DogForm, { IDog } from "./DogForm";
-import { differenceInDays } from "date-fns";
 
 export interface IRoom {
     startDate: string,
@@ -29,8 +28,7 @@ interface IRoomProp {
     index: number,
     changeDates: (event: React.ChangeEvent<HTMLInputElement>) => void,
     changeSelected: (event: React.ChangeEvent<HTMLSelectElement>) => void,
-    handleDogName: (index:number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
-    handleDogBreed: (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
+    changeDogAndBreed: (index:number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
     handleFood: (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
     handleGrooming: (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => void,
     handleAddingDogs: (event: React.MouseEvent<HTMLButtonElement>) => void,
@@ -150,8 +148,8 @@ class RoomForm extends React.Component<IRoomProp, {}> {
                             <DogForm 
                                 singleDog={dog} 
                                 index={idx} 
-                                changeName={this.props.handleDogName(idx)} 
-                                changeBreed={this.props.handleDogBreed(idx)} 
+                                changeName={this.props.changeDogAndBreed(idx)} 
+                                changeBreed={this.props.changeDogAndBreed(idx)} 
                                 foodCheck={this.props.handleFood(idx)} 
                                 groomCheck={this.props.handleGrooming(idx)}/>
                             <button type="button" className="btn btn-danger" onClick={this.props.handleRemovingDogs(idx)}>Remove Dog</button>
