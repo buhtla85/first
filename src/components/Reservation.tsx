@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import RoomForm, { IRoom } from "./RoomForm";
 import { differenceInDays } from "date-fns";
 import { IDog } from './DogForm';
-import { number } from 'prop-types';
 
 interface IStateRoom {
     rooms: IRoom[],
@@ -56,68 +55,53 @@ export default class Reservation extends Component <{}, IStateRoom> {
     handleDateInputs = (idx: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const date = this.state.rooms.map((room: IRoom, roomIdx: number) => idx !== roomIdx ? room : {...room, [event.target.name]: event.target.value});
         this.setState({rooms: date}, () => this.calculateDays(idx));
-    }
+    } // two functions turned into this one with the help of [event.target.name]
 
     calculateDays = (idx: number) => {
         const start = new Date(this.state.rooms[idx].startDate);
         const end = new Date(this.state.rooms[idx].endDate);
         const result = differenceInDays(end, start);
         if (result <= 0) {
-            const addErrorString = this.state.rooms.map((room: IRoom, roomIdx: number) =>
-                idx !== roomIdx ? room : {...room, errMessageDate: "Invalid input. Please try again."}
-            );
-            this.setState({rooms: addErrorString});
+            this.handleInvalidDatesString(idx, "Invalid input. Please try again.", "errMessageDate");
             setTimeout(() => {
-                const addEmptyString = this.state.rooms.map((room: IRoom, roomIdx: number) =>
-                    idx !== roomIdx ? room : {...room, errMessageDate: ""}
-                );
-                this.setState({rooms: addEmptyString});
+                this.handleInvalidDatesString(idx, "", "errMessageDate");
             }, 5000);
         } else {
             const addResult = this.state.rooms.map((room: IRoom, roomIdx: number) => 
                 idx !== roomIdx ? room : {...room, days: result}
             );
-            this.setState({rooms: addResult})
+            this.setState({rooms: addResult});
         }
     }
 
-    handleDropdown = (idx: number) => (event: React.ChangeEvent<HTMLSelectElement>) => {
+    handleInvalidDatesString = (index: number, val: string, key: string) => {
+        const addString = this.state.rooms.map((room: IRoom, roomIdx: number) => index !== roomIdx ? room : {...room, [key]: val});
+        this.setState({rooms: addString});
+    }
+
+    handleSelectRoom = (idx: number) => (event: React.ChangeEvent<HTMLSelectElement>) => {
         if(typeof event.target.value === "string") {
         const capacity = parseInt(event.target.value) as 1 | 2 | 3 | 4;
         const price = this.state.roomPricing[capacity];
-       
-            const selectedValue = this.state.rooms.map((room: IRoom, roomIdx: number) => 
-                idx !== roomIdx ? room : {...room, roomPrice: price, counter: capacity}
-            );
-            this.setState({rooms: selectedValue});
+        const selectedValue = this.state.rooms.map((room: IRoom, roomIdx: number) => 
+            idx !== roomIdx ? room : {...room, roomPrice: price, counter: capacity}
+        );
+        this.setState({rooms: selectedValue});
         }
     }
 
-    addDogName = (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleAddingDogNameAndBreed = (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const newDog = this.state.rooms.map((room: IRoom, roomIdx: number) => {
             if (idx !== roomIdx) {
                 return room;
             } else {
-                const newValue = room.dogs.map((dog: IDog, dogIdx: number) => index !== dogIdx ? dog : {...dog, name: event.target.value});
+                const newValue = room.dogs.map((dog: IDog, dogIdx: number) => index !== dogIdx ? dog : {...dog, [event.target.name]: event.target.value});
                 const newItem = {...room, dogs: newValue};
                 return newItem;
             }
         });
         this.setState({rooms: newDog});
-    }
-
-    addBreedName = (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newBreed = this.state.rooms.map((room: IRoom, roomIdx: number) => {
-            if (idx !== roomIdx) {
-                return room;
-            } else {
-                const newVal = room.dogs.map((dog: IDog, dogIdx: number) => index !== dogIdx ? dog : {...dog, breed: event.target.value});
-                const newItem = {...room, dogs: newVal};
-                return newItem;
-            }
-        });
-        this.setState({rooms: newBreed});
-    }
+    } // two functions turned into this one with the help of [event.target.name]
 
     isFoodChecked = (price: number) => (idx: number) => (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const foodCheck = this.state.rooms.map((room: IRoom, roomIdx: number) => {
@@ -164,7 +148,7 @@ export default class Reservation extends Component <{}, IStateRoom> {
             if (idx !== roomIdx) return room;
             
             if (room.dogs.length <= room.counter - 1) {
-                const newValue = room.dogs.concat([{name:"", breed: "", food: false, grooming: false, foodPrice: 0, groomPrice: 0}]);
+                const newValue = room.dogs.concat([createDog()]);
                 const newItem = {...room, dogs: newValue};
                 return newItem;
             } else if (room.dogs.length <= 1) {
@@ -289,9 +273,8 @@ export default class Reservation extends Component <{}, IStateRoom> {
                                     singleRoom={room} 
                                     index={idx} 
                                     changeDates={this.handleDateInputs(idx)} 
-                                    changeSelected={this.handleDropdown(idx)} 
-                                    handleDogName={this.addDogName(idx)} 
-                                    handleDogBreed={this.addBreedName(idx)} 
+                                    changeSelected={this.handleSelectRoom(idx)} 
+                                    changeDogAndBreed={this.handleAddingDogNameAndBreed(idx)} 
                                     handleFood={this.isFoodChecked(this.state.dogServicesPricing.foodPrice)(idx)} 
                                     handleGrooming={this.isGroomingChecked(this.state.dogServicesPricing.groomPrice)(idx)} 
                                     handleAddingDogs={this.addNewDog(idx)} 
